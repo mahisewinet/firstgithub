@@ -1,0 +1,3060 @@
+Sunday, December 26, 2021 3:12:33 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+*>Error # 7001
+*>There is no license for IBM SPSS Statistics.  This could be due to a missing
+*>license file or no more network licenses available.  For detailed information
+*>about this problem, run the 'showlic' utility found in the product
+*>installation directory.
+Sunday, December 26, 2021 3:14:53 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+*>Error # 7001
+*>There is no license for IBM SPSS Statistics.  This could be due to a missing
+*>license file or no more network licenses available.  For detailed information
+*>about this problem, run the 'showlic' utility found in the product
+*>installation directory.
+Sunday, December 26, 2021 3:27:41 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Sunday, December 26, 2021 3:29:42 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+
+GET DATA
+  /TYPE=XLSX
+  /FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo.xlsx'
+  /SHEET=name 'Sheet1'
+  /CELLRANGE=FULL
+  /READNAMES=ON
+  /DATATYPEMIN PERCENTAGE=95.0
+  /HIDDEN IGNORE=YES.
+EXECUTE.
+DATASET NAME DataSet2 WINDOW=FRONT.
+PRESERVE.
+SET DECIMAL DOT.
+
+GET DATA  /TYPE=TXT
+  /FILE="C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo.txt"
+  /ENCODING='Locale'
+  /DELCASE=LINE
+  /DELIMITERS="\t ,"
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=2
+  /DATATYPEMIN PERCENTAGE=95.0
+  /VARIABLES=
+  ql F2.0
+  Gender AUTO
+  Marital AUTO
+  Status AUTO
+  Address AUTO
+  Income_A AUTO
+  Income AUTO
+  Category_A AUTO
+  Job AUTO
+  Category AUTO
+  V11 AUTO
+  /MAP.
+RESTORE.
+
+CACHE.
+EXECUTE.
+DATASET NAME DataSet3 WINDOW=FRONT.
+FREQUENCIES VARIABLES=ql
+  /ORDER=ANALYSIS.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\bankloan.sav'.
+DATASET NAME DataSet4 WINDOW=FRONT.
+DATASET ACTIVATE DataSet1.
+DATASET CLOSE DataSet4.
+SORT CASES BY bdate(A).
+SORT CASES BY salbegin(A).
+SORT VARIABLES BY NAME (D).
+SORT VARIABLES BY NAME (A).
+SORT CASES  BY gender.
+SPLIT FILE LAYERED BY gender.
+SORT CASES BY gender.
+ALTER TYPE gender (A4).
+DATASET ACTIVATE DataSet2.
+SORT CASES BY Gender.
+DATASET ACTIVATE DataSet1.
+MATCH FILES /FILE=*
+  /FILE='DataSet2'
+  /BY Gender.
+EXECUTE.
+*>Warning # 5132
+*>Duplicate key in a file.  The BY variables do not uniquely identify each case
+*>on the indicated file.  Please check the results carefully.
+*>Warning # 5132
+*>Duplicate key in a file.  The BY variables do not uniquely identify each case
+*>on the indicated file.  Please check the results carefully.
+ADD FILES /FILE=*
+  /FILE='DataSet2'.
+EXECUTE.
+ADD FILES /FILE=*
+  /FILE='DataSet2'.
+EXECUTE.
+SORT CASES BY gender.
+DATASET ACTIVATE DataSet3.
+SORT CASES BY Gender.
+ALTER TYPE Gender (A4).
+DATASET ACTIVATE DataSet1.
+MATCH FILES /FILE=*
+  /RENAME (salbegin educ id = d0 d1 d2)
+  /FILE='DataSet3'
+  /RENAME (Address = d3)
+  /BY Gender
+  /DROP= d0 d1 d2 d3.
+EXECUTE.
+*>Warning # 5132
+*>Duplicate key in a file.  The BY variables do not uniquely identify each case
+*>on the indicated file.  Please check the results carefully.
+*>Warning # 5132
+*>Duplicate key in a file.  The BY variables do not uniquely identify each case
+*>on the indicated file.  Please check the results carefully.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet5 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_1.sav'.
+DATASET NAME DataSet6 WINDOW=FRONT.
+WEIGHT BY Market_9.
+DATASET ACTIVATE DataSet2.
+DATASET CLOSE DataSet1.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet7 WINDOW=FRONT.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_1.sav'.
+DATASET NAME DataSet8 WINDOW=FRONT.
+DATASET ACTIVATE DataSet7.
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=gender
+  /salary_mean=MEAN(salary).
+* Define Multiple Response Sets.
+MRSETS
+  /MDGROUP NAME=$NEW CATEGORYLABELS=VARLABELS VARIABLES=salbegin salary salary_mean VALUE=1
+  /DISPLAY NAME=[$NEW].
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=$NEW DISPLAY=LABEL
+  /TABLE BY $NEW [COUNT F40.0]
+  /CATEGORIES VARIABLES=$NEW  EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+* Identify Duplicate Cases.
+SORT CASES BY id(A) salbegin(A).
+MATCH FILES
+  /FILE=*
+  /BY id
+  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryLast InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryFirst 'Indicator of each first matching case as Primary'.
+VALUE LABELS  PrimaryFirst 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryFirst (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryFirst.
+EXECUTE.
+* Identify Duplicate Cases.
+SORT CASES BY id(A) gender(A).
+MATCH FILES
+  /FILE=*
+  /BY id
+ /DROP = PrimaryFirst  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryLast InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryFirst 'Indicator of each first matching case as Primary'.
+VALUE LABELS  PrimaryFirst 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryFirst (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryFirst.
+EXECUTE.
+* Identify Unusual Cases.
+DETECTANOMALY
+  /VARIABLES SCALE=id ID=gender
+  /PRINT ANOMALYLIST
+  /HANDLEMISSING APPLY=NO
+  /CRITERIA PCTANOMALOUSCASES=5 ANOMALYCUTPOINT=2 MINNUMPEERS=1 MAXNUMPEERS=15 NUMREASONS=1.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='SingleVarRule 1', Type='Numeric', Domain='Range', Minimum='1000', "+
+    "Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No'").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='SingleVarRule 1', Type='Numeric', Domain='Range', Minimum='1000', "+
+    "Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No' ").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=salary ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='SingleVarRule1_salary'").
+TEMPORARY.
+* SingleVarRule 1.
+COMPUTE SingleVarRule1_salary=NOT(VALUE(salary)>=1000 AND VALUE(salary)<=20000 OR MISSING(salary)).
+* Mark rule outcome variables as such in SPSS Statistics data dictionary.
+VARIABLE ATTRIBUTE VARIABLES=SingleVarRule1_salary ATTRIBUTE=$VD.RuleOutcomeVar("Yes").
+* Validate Data.
+VALIDATEDATA VARIABLES=salary
+  /VARCHECKS STATUS=ON PCTMISSING=70 CV=0.001 STDDEV=0
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=YES MINVIOLATIONS=1 CASELIMIT=FIRSTN(100)
+  /RULESUMMARIES BYVARIABLE.
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* Delete existing links between variables and rules.
+VARIABLE ATTRIBUTE VARIABLES=ALL  DELETE=$VD.SRuleRef.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='SingleVarRule 1', Type='Numeric', Domain='Range', Minimum='1000', "+
+    "Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No'").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=salary ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='SingleVarRule1_salary_'").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* Delete existing links between variables and rules.
+VARIABLE ATTRIBUTE VARIABLES=ALL  DELETE=$VD.SRuleRef.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='SingleVarRule 1', Type='Numeric', Domain='Range', Minimum='1000', "+
+    "Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No'").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=salary ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='SingleVarRule1_salary_'").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* Delete existing links between variables and rules.
+VARIABLE ATTRIBUTE VARIABLES=ALL DELETE=$VD.SRuleRef.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='SingleVarRule 1', Type='Numeric', Domain='Range', Minimum='1000', "+
+    "Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No' ").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=salary ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='SingleVarRule1_salary'").
+TEMPORARY.
+* SingleVarRule 1.
+COMPUTE SingleVarRule1_salary=NOT(VALUE(salary)>=1000 AND VALUE(salary)<=20000 OR MISSING(salary)).
+* Mark rule outcome variables as such in SPSS Statistics data dictionary.
+VARIABLE ATTRIBUTE VARIABLES=SingleVarRule1_salary ATTRIBUTE=$VD.RuleOutcomeVar("Yes").
+* Validate Data.
+VALIDATEDATA VARIABLES=salary
+  /VARCHECKS STATUS=ON PCTMISSING=70 CV=0.001 STDDEV=0
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=YES MINVIOLATIONS=1 CASELIMIT=FIRSTN(100)
+  /RULESUMMARIES BYVARIABLE.
+DATASET ACTIVATE DataSet5.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='SingleVarRule 1', Type='Numeric', Domain='Range', Minimum='1500', "+
+    "Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No'")
+   $VD.SRule[2]("Label='Copy of SingleVarRule 1', Type='Numeric', Domain='Range', "+
+    "Minimum='1500', Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', "+
+    "FlagBlank='No', FlagNoninteger='No', FlagUnlabeled='No'").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='SingleVarRule 1', Type='Numeric', Domain='Range', Minimum='1500', "+
+    "Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No' ")
+   $VD.SRule[2]("Label='Copy of SingleVarRule 1', Type='Numeric', Domain='Range', "+
+    "Minimum='1500', Maximum='20000', FlagUserMissing='No', FlagSystemMissing='No', "+
+    "FlagBlank='No', FlagNoninteger='No', FlagUnlabeled='No' ").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=salary ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='SingleVarRule1_salary'")
+      $VD.SRuleRef[2]("Rule='$VD.SRule[2]',OutcomeVar='CopyofSingleVarRule1_salary'").
+TEMPORARY.
+* Copy of SingleVarRule 1.
+COMPUTE CopyofSingleVarRule1_salary=NOT(VALUE(salary)>=1500 AND VALUE(salary)<=20000 OR
+    MISSING(salary)).
+* SingleVarRule 1.
+COMPUTE SingleVarRule1_salary=NOT(VALUE(salary)>=1500 AND VALUE(salary)<=20000 OR MISSING(salary)).
+* Mark rule outcome variables as such in SPSS Statistics data dictionary.
+VARIABLE ATTRIBUTE VARIABLES=CopyofSingleVarRule1_salary SingleVarRule1_salary
+    ATTRIBUTE=$VD.RuleOutcomeVar("Yes").
+* Validate Data.
+VALIDATEDATA VARIABLES=salary
+  /VARCHECKS STATUS=ON PCTMISSING=70 CV=0.001 STDDEV=0
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=YES MINVIOLATIONS=1 CASELIMIT=FIRSTN(100)
+  /RULESUMMARIES BYVARIABLE.
+COMPUTE salnew=salary + salary * 0.5.
+EXECUTE.
+NEW FILE.
+DATASET NAME DataSet9 WINDOW=FRONT.
+COUNT count=magazine1 magazine2 magazine3('1').
+EXECUTE.
+DATASET ACTIVATE DataSet7.
+RECODE salary (Lowest thru 1000=1) (15000 thru 20000=2) (20000 thru 30000=3) (30000 thru Highest=4).
+EXECUTE.
+RECODE salary (Lowest thru 1000=1) (1500 thru 2000=2) (2000 thru 3000=3) (4000 thru Highest=4) INTO
+    rsal.
+EXECUTE.
+RECODE salary (Lowest thru 1000=1) (1500 thru 2000=2) (2000 thru 3000=3) (4000 thru Highest=4) INTO
+    rsal.
+EXECUTE.
+AUTORECODE VARIABLES=id
+  /INTO idd
+  /PRINT.
+* Optimal Binning.
+OPTIMAL BINNING
+  /VARIABLES GUIDE=salary BIN=id SAVE=NO
+  /CRITERIA METHOD=MDLP PREPROCESS=EQUALFREQ (BINS=1000) FORCEMERGE=0 LOWERLIMIT=INCLUSIVE
+    LOWEREND=UNBOUNDED UPPEREND=UNBOUNDED
+  /MISSING SCOPE=PAIRWISE
+  /PRINT ENDPOINTS.
+* Visual Binning.
+*salary.
+RECODE  salary (MISSING=COPY) (LO THRU 1500=1) (LO THRU 2000=2) (LO THRU 3000=3) (LO THRU 20000=4)
+    (LO THRU 40000=5) (LO THRU HI=6) (ELSE=SYSMIS) INTO saln.
+VARIABLE LABELS  saln 'Current Salary (Binned)'.
+FORMATS  saln (F5.0).
+VALUE LABELS  saln 1 '' 2 '' 3 '' 4 '' 5 '' 6 ''.
+MISSING VALUES saln (0).
+VARIABLE LEVEL  saln (ORDINAL).
+EXECUTE.
+RANK VARIABLES=id bdate jobcat (A) BY salbegin
+  /RANK
+  /PRINT=YES
+  /TIES=MEAN.
+* Date and Time Wizard: cdate.
+COMPUTE  cdate=DATEDIF(bdate, $TIME, "years").
+VARIABLE LABELS  cdate.
+VARIABLE LEVEL  cdate (SCALE).
+FORMATS  cdate (F5.0).
+VARIABLE WIDTH  cdate(5).
+EXECUTE.
+RMV /salary_1=SMEAN(salary).
+ADD FILES /FILE=*
+  /RENAME (cdate educ gender id idd jobcat jobtime minority prevexp PrimaryFirst Rbdate Rid Rjobcat
+    rsal salary salary_1 salary_mean salbegin saln=d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 d10 d11 d12 d13 d14
+    d15 d16 d17 d18)
+  /FILE='DataSet6'
+  /RENAME (DATE_ Market_1 Market_10 Market_11 Market_12 Market_13 Market_14 Market_15 Market_16
+    Market_17 Market_18 Market_19 Market_2 Market_20 Market_21 Market_22 Market_23 Market_24 Market_25
+    Market_26 Market_27 Market_28 Market_29 Market_3 Market_30 Market_31 Market_32 Market_33 Market_34
+    Market_35 Market_36 Market_37 Market_38 Market_39 Market_4 Market_40 Market_41 Market_42 Market_43
+    Market_44 Market_45 Market_46 Market_47 Market_48 Market_49 Market_5 Market_50 Market_51 Market_52
+    Market_53 Market_54 Market_55 Market_56 Market_57 Market_58 Market_59 Market_6 Market_60 Market_61
+    Market_62 Market_63 Market_64 Market_65 Market_66 Market_67 Market_68 Market_69 Market_7 Market_70
+    Market_71 Market_72 Market_73 Market_74 Market_75 Market_76 Market_77 Market_78 Market_79 Market_8
+    Market_80 Market_81 Market_82 Market_83 Market_84 Market_85 Market_9 MONTH_ Total YEAR_=d19 d20 d21
+    d22 d23 d24 d25 d26 d27 d28 d29 d30 d31 d32 d33 d34 d35 d36 d37 d38 d39 d40 d41 d42 d43 d44 d45 d46
+    d47 d48 d49 d50 d51 d52 d53 d54 d55 d56 d57 d58 d59 d60 d61 d62 d63 d64 d65 d66 d67 d68 d69 d70 d71
+    d72 d73 d74 d75 d76 d77 d78 d79 d80 d81 d82 d83 d84 d85 d86 d87 d88 d89 d90 d91 d92 d93 d94 d95 d96
+    d97 d98 d99 d100 d101 d102 d103 d104 d105 d106 d107)
+  /DROP=d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 d10 d11 d12 d13 d14 d15 d16 d17 d18 d19 d20 d21 d22 d23 d24
+    d25 d26 d27 d28 d29 d30 d31 d32 d33 d34 d35 d36 d37 d38 d39 d40 d41 d42 d43 d44 d45 d46 d47 d48 d49
+    d50 d51 d52 d53 d54 d55 d56 d57 d58 d59 d60 d61 d62 d63 d64 d65 d66 d67 d68 d69 d70 d71 d72 d73 d74
+    d75 d76 d77 d78 d79 d80 d81 d82 d83 d84 d85 d86 d87 d88 d89 d90 d91 d92 d93 d94 d95 d96 d97 d98 d99
+    d100 d101 d102 d103 d104 d105 d106 d107.
+EXECUTE.
+DATASET ACTIVATE DataSet5.
+RMV /salary_1=SMEAN(salary) /bdate_1=SMEAN(bdate).
+* Date and Time Wizard: cdate.
+COMPUTE  cdate=DATEDIF($TIME, bdate, "years").
+VARIABLE LABELS  cdate.
+VARIABLE LEVEL  cdate (SCALE).
+FORMATS  cdate (F5.0).
+VARIABLE WIDTH  cdate(5).
+EXECUTE.
+RANK VARIABLES=id bdate jobcat (A) BY salary
+  /RANK
+  /PRINT=YES
+  /TIES=MEAN.
+DATASET ACTIVATE DataSet2.
+RANK VARIABLES=Age MaritalStatus Address (A) BY JobCategory
+  /RANK
+  /PRINT=YES
+  /TIES=MEAN.
+* Optimal Binning.
+OPTIMAL BINNING
+  /VARIABLES GUIDE=Gender BIN=Age SAVE=NO
+  /CRITERIA METHOD=MDLP PREPROCESS=EQUALFREQ (BINS=1000) FORCEMERGE=0 LOWERLIMIT=INCLUSIVE
+    LOWEREND=UNBOUNDED UPPEREND=UNBOUNDED
+  /MISSING SCOPE=PAIRWISE
+  /PRINT ENDPOINTS.
+AUTORECODE VARIABLES=Age
+  /INTO cage
+  /PRINT.
+DATASET ACTIVATE DataSet3.
+DATASET CLOSE DataSet2.
+DATASET ACTIVATE DataSet5.
+DATASET CLOSE DataSet3.
+DATASET ACTIVATE DataSet6.
+DATASET CLOSE DataSet5.
+DATASET ACTIVATE DataSet7.
+DATASET CLOSE DataSet6.
+DATASET ACTIVATE DataSet8.
+DATASET CLOSE DataSet7.
+DATASET ACTIVATE DataSet9.
+DATASET CLOSE DataSet8.
+Sunday, December 26, 2021 9:27:17 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+NEW FILE.
+DATASET NAME DataSet1 WINDOW=FRONT.
+NEW FILE.
+DATASET NAME DataSet2 WINDOW=FRONT.
+
+GET DATA
+  /TYPE=XLSX
+  /FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo.xlsx'
+  /SHEET=name 'Sheet1'
+  /CELLRANGE=FULL
+  /READNAMES=ON
+  /DATATYPEMIN PERCENTAGE=95.0
+  /HIDDEN IGNORE=YES.
+EXECUTE.
+DATASET NAME DataSet3 WINDOW=FRONT.
+DATE Y 1900.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm' '").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm'  ").
+* Validate Data.
+VALIDATEDATA VARIABLES=Gender
+  /VARCHECKS STATUS=ON PCTMISSING=70 PCTEQUAL=95 PCTUNEQUAL=90
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=NO.
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm' '").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm'  ").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=Gender ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='sex_Gender'").
+TEMPORARY.
+* sex.
+COMPUTE sex_Gender=NOT(ANY(LOWER(Gender),'f','m') OR MISSING(Gender) OR Gender='').
+* Mark rule outcome variables as such in SPSS Statistics data dictionary.
+VARIABLE ATTRIBUTE VARIABLES=sex_Gender ATTRIBUTE=$VD.RuleOutcomeVar("Yes").
+* Validate Data.
+VALIDATEDATA VARIABLES=Gender
+  /VARCHECKS STATUS=ON PCTMISSING=70 PCTEQUAL=95 PCTUNEQUAL=90
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=YES MINVIOLATIONS=1 CASELIMIT=FIRSTN(100)
+  /RULESUMMARIES BYVARIABLE.
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* Delete existing links between variables and rules.
+VARIABLE ATTRIBUTE VARIABLES=ALL DELETE=$VD.SRuleRef.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm'  ").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=Gender ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='sex_Gender'").
+TEMPORARY.
+* sex.
+COMPUTE sex_Gender=NOT(ANY(LOWER(Gender),'f','m') OR MISSING(Gender) OR Gender='').
+* Mark rule outcome variables as such in SPSS Statistics data dictionary.
+VARIABLE ATTRIBUTE VARIABLES=sex_Gender ATTRIBUTE=$VD.RuleOutcomeVar("Yes").
+* Validate Data.
+VALIDATEDATA VARIABLES=Gender
+  /VARCHECKS STATUS=ON PCTMISSING=70 PCTEQUAL=95 PCTUNEQUAL=90
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=YES MINVIOLATIONS=1 CASELIMIT=FIRSTN(100)
+  /RULESUMMARIES BYVARIABLE.
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* Delete existing links between variables and rules.
+VARIABLE ATTRIBUTE VARIABLES=ALL  DELETE=$VD.SRuleRef.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm' '").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=Gender ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='sex_Gender_'").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* Delete existing links between variables and rules.
+VARIABLE ATTRIBUTE VARIABLES=ALL DELETE=$VD.SRuleRef.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm'  ").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=Gender ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='sex_Gender'").
+TEMPORARY.
+* sex.
+COMPUTE sex_Gender=NOT(ANY(LOWER(Gender),'f','m') OR MISSING(Gender) OR Gender='').
+* Mark rule outcome variables as such in SPSS Statistics data dictionary.
+VARIABLE ATTRIBUTE VARIABLES=sex_Gender ATTRIBUTE=$VD.RuleOutcomeVar("Yes").
+* Validate Data.
+VALIDATEDATA VARIABLES=Gender
+  /VARCHECKS STATUS=ON PCTMISSING=70 PCTEQUAL=95 PCTUNEQUAL=90
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=YES MINVIOLATIONS=1 CASELIMIT=FIRSTN(100)
+  /RULESUMMARIES BYVARIABLE.
+* Identify Duplicate Cases.
+SORT CASES BY Age(A) Gender(A).
+MATCH FILES
+  /FILE=*
+  /BY Age
+  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryFirst InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryLast 'Indicator of each last matching case as Primary'.
+VALUE LABELS  PrimaryLast 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryLast (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryLast.
+EXECUTE.
+USE ALL.
+do if $casenum=1.
+compute #s_$_1=200.
+compute #s_$_2=300.
+end if.
+do if  #s_$_2 > 0.
+compute filter_$=uniform(1)* #s_$_2 < #s_$_1.
+compute #s_$_1=#s_$_1 - filter_$.
+compute #s_$_2=#s_$_2 - 1.
+else.
+compute filter_$=0.
+end if.
+VARIABLE LABELS filter_$ '200 from the first 300 cases (SAMPLE)'.
+FORMATS filter_$ (f1.0).
+FILTER  BY filter_$.
+EXECUTE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo_cs_1.sav'.
+DATASET NAME DataSet4 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo_cs_2.sav'.
+DATASET NAME DataSet5 WINDOW=FRONT.
+NEW FILE.
+DATASET NAME DataSet6 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_1.sav'.
+DATASET NAME DataSet7 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_2.sav'.
+DATASET NAME DataSet8 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_1.sav'.
+DATASET NAME DataSet9 WINDOW=FRONT.
+ADD FILES /FILE=*
+  /FILE='DataSet8'.
+EXECUTE.
+NEW FILE.
+DATASET NAME DataSet10 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet11 WINDOW=FRONT.
+SORT CASES BY gender(A).
+SORT CASES BY bdate(A).
+SORT VARIABLES BY NAME (A).
+SORT CASES BY educ(A).
+* Identify Unusual Cases.
+DETECTANOMALY
+  /VARIABLES SCALE=bdate ID=gender
+  /PRINT ANOMALYLIST
+  /HANDLEMISSING APPLY=NO
+  /CRITERIA PCTANOMALOUSCASES=5 ANOMALYCUTPOINT=2 MINNUMPEERS=1 MAXNUMPEERS=15 NUMREASONS=1.
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=salary
+  /salbegin_mean=MEAN(salbegin).
+SORT CASES  BY gender.
+SPLIT FILE LAYERED BY gender.
+SORT CASES  BY minority.
+SPLIT FILE LAYERED BY minority.
+WEIGHT BY bdate.
+WEIGHT BY salary.
+COMPUTE newsal=salary + 0.1 * salary.
+EXECUTE.
+AUTORECODE VARIABLES=gender
+  /INTO sex
+  /PRINT.
+* Visual Binning.
+*salary.
+RECODE  salary (MISSING=COPY) (LO THRU 15700=1) (LO THRU 39560=2) (LO THRU 63420=3) (LO THRU
+    87280=4) (LO THRU 111140=5) (LO THRU HI=6) (ELSE=SYSMIS) INTO sall.
+VARIABLE LABELS  sall 'Current Salary (Binned)'.
+FORMATS  sall (F5.0).
+VALUE LABELS  sall 1 '<= $15,700' 2 '$15,701 - $39,560' 3 '$39,561 - $63,420' 4 '$63,421 - $87,280'
+    5 '$87,281 - $111,140' 6 '$111,141+' 0 'missing'.
+MISSING VALUES sall (0).
+VARIABLE LEVEL  sall (ORDINAL).
+EXECUTE.
+* Optimal Binning.
+OPTIMAL BINNING
+  /VARIABLES GUIDE=salbegin_mean BIN=salbegin SAVE=NO
+  /CRITERIA METHOD=MDLP PREPROCESS=EQUALFREQ (BINS=1000) FORCEMERGE=0 LOWERLIMIT=INCLUSIVE
+    LOWEREND=UNBOUNDED UPPEREND=UNBOUNDED
+  /MISSING SCOPE=PAIRWISE
+  /PRINT ENDPOINTS.
+RANK VARIABLES=salary (A) BY salbegin
+  /RANK
+  /PRINT=YES
+  /TIES=MEAN.
+* Date and Time Wizard: dd.
+COMPUTE  dd=RND(($TIME - bdate) / (365.25 * time.days(1))).
+VARIABLE LABELS  dd.
+VARIABLE LEVEL  dd (SCALE).
+FORMATS  dd (F5.0).
+VARIABLE WIDTH  dd(5).
+EXECUTE.
+RMV /salary_1=SMEAN(salary).
+*>Warning # 3211
+*>On at least one case, the value of the weight variable was zero, negative, or
+*>missing.  Such cases are invisible to statistical procedures and graphs which
+*>need positively weighted cases, but remain on the file and are processed by
+*>non-statistical facilities such as LIST and SAVE.
+USE ALL.
+COMPUTE filter_$=(salbegin >= 125000).
+VARIABLE LABELS filter_$ 'salbegin >= 125000 (FILTER)'.
+VALUE LABELS filter_$ 0 'Not Selected' 1 'Selected'.
+FORMATS filter_$ (f1.0).
+FILTER BY filter_$.
+EXECUTE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+USE ALL.
+COMPUTE filter_$=(salbegin >= 12500).
+VARIABLE LABELS filter_$ 'salbegin >= 12500 (FILTER)'.
+VALUE LABELS filter_$ 0 'Not Selected' 1 'Selected'.
+FORMATS filter_$ (f1.0).
+FILTER BY filter_$.
+EXECUTE.
+*>Warning # 3211
+*>On at least one case, the value of the weight variable was zero, negative, or
+*>missing.  Such cases are invisible to statistical procedures and graphs which
+*>need positively weighted cases, but remain on the file and are processed by
+*>non-statistical facilities such as LIST and SAVE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='salary', Type='Numeric', Domain='Range', Minimum='8100', "+
+    "Maximum='193650', FlagUserMissing='No', FlagSystemMissing='No', FlagBlank='No', "+
+    "FlagNoninteger='No', FlagUnlabeled='No'").
+RECODE salary (Lowest thru 1500=1) (1500 thru 2500=2) (2500 thru 3500=3) (3500 thru Highest=4).
+EXECUTE.
+*>Warning # 3211
+*>On at least one case, the value of the weight variable was zero, negative, or
+*>missing.  Such cases are invisible to statistical procedures and graphs which
+*>need positively weighted cases, but remain on the file and are processed by
+*>non-statistical facilities such as LIST and SAVE.
+NEW FILE.
+DATASET NAME DataSet12 WINDOW=FRONT.
+* Define Multiple Response Sets.
+MRSETS
+  /MDGROUP NAME=$saf CATEGORYLABELS=VARLABELS VARIABLES=esat ebs asrat walta VALUE=1
+  /DISPLAY NAME=[$saf].
+EXECUTE.
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=$saf DISPLAY=LABEL
+  /TABLE $saf [COUNT F40.0]
+  /CATEGORIES VARIABLES=$saf  EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+DATASET ACTIVATE DataSet1.
+DATASET CLOSE DataSet12.
+DATASET ACTIVATE DataSet2.
+DATASET CLOSE DataSet1.
+DATASET ACTIVATE DataSet3.
+DATASET CLOSE DataSet2.
+DATASET ACTIVATE DataSet4.
+DATASET CLOSE DataSet3.
+DATASET ACTIVATE DataSet5.
+DATASET CLOSE DataSet4.
+DATASET ACTIVATE DataSet6.
+DATASET CLOSE DataSet5.
+DATASET ACTIVATE DataSet7.
+DATASET CLOSE DataSet6.
+DATASET ACTIVATE DataSet8.
+DATASET CLOSE DataSet7.
+DATASET ACTIVATE DataSet9.
+DATASET CLOSE DataSet8.
+DATASET ACTIVATE DataSet10.
+DATASET CLOSE DataSet9.
+DATASET ACTIVATE DataSet11.
+DATASET CLOSE DataSet10.
+Monday, December 27, 2021 2:27:12 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+* Define Multiple Response Sets.
+MRSETS
+  /MDGROUP NAME=$sami CATEGORYLABELS=VARLABELS VARIABLES=magazine1 magazinen2 magazine3 VALUE='1'
+  /DISPLAY NAME=[$sami].
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=$sami DISPLAY=LABEL
+  /TABLE $sami [COUNT F40.0]
+  /CATEGORIES VARIABLES=$sami  EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+* Define Multiple Response Sets.
+MRSETS
+  /MDGROUP NAME=$sanu CATEGORYLABELS=VARLABELS VARIABLES=magazine1 magazinen2 magazine3 VALUE='1'
+  /DELETE NAME=[$sami]
+  /DISPLAY NAME=[$sanu].
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=$sanu DISPLAY=LABEL
+  /TABLE $sanu [COUNT F40.0]
+  /CATEGORIES VARIABLES=$sanu  EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+COUNT count=magazine1 magazinen2 magazine3('1').
+EXECUTE.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm' '").
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo_cs_1.sav'.
+DATASET NAME DataSet2 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo.sav'.
+DATASET NAME DataSet3 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_1.sav'.
+DATASET NAME DataSet4 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo_cs.sav'.
+DATASET NAME DataSet5 WINDOW=FRONT.
+DATASET CLOSE DataSet1.
+DATASET CLOSE DataSet4.
+DATASET ACTIVATE DataSet0.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet6 WINDOW=FRONT.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm' '").
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm'  ").
+* Validate Data.
+VALIDATEDATA VARIABLES=gender
+  /VARCHECKS STATUS=ON PCTMISSING=70 PCTEQUAL=95 PCTUNEQUAL=90
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=NO.
+* Delete existing single-variable validation rules.
+DATAFILE ATTRIBUTE DELETE=$VD.SRule.
+* (Re)define single-variable validation rules.
+DATAFILE ATTRIBUTE ATTRIBUTE=
+   $VD.SRule[1]("Label='sex', Type='String', Domain='List', FlagUserMissing='No', "+
+    "FlagSystemMissing='No', FlagBlank='No', CaseSensitive='No',List='f' 'm'  ").
+* (Re)define links between variables and rules.
+VARIABLE ATTRIBUTE
+    VARIABLES=gender ATTRIBUTE=
+      $VD.SRuleRef[1]("Rule='$VD.SRule[1]',OutcomeVar='sex_gender'").
+TEMPORARY.
+* sex.
+COMPUTE sex_gender=NOT(ANY(LOWER(gender),'f','m') OR MISSING(gender) OR gender='').
+* Mark rule outcome variables as such in SPSS Statistics data dictionary.
+VARIABLE ATTRIBUTE VARIABLES=sex_gender ATTRIBUTE=$VD.RuleOutcomeVar("Yes").
+* Validate Data.
+VALIDATEDATA VARIABLES=gender
+  /VARCHECKS STATUS=ON PCTMISSING=70 PCTEQUAL=95 PCTUNEQUAL=90
+  /CASECHECKS REPORTEMPTY=YES SCOPE=ALLVARS
+  /CASEREPORT DISPLAY=YES MINVIOLATIONS=1 CASELIMIT=FIRSTN(100)
+  /RULESUMMARIES BYVARIABLE.
+* Identify Duplicate Cases.
+SORT CASES BY gender(A) salary(A).
+MATCH FILES
+  /FILE=*
+  /BY gender
+  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryLast InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryFirst 'Indicator of each first matching case as Primary'.
+VALUE LABELS  PrimaryFirst 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryFirst (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryFirst.
+EXECUTE.
+* Identify Duplicate Cases.
+SORT CASES BY salary(A) gender(A).
+MATCH FILES
+  /FILE=*
+  /BY salary
+ /DROP = PrimaryFirst  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryLast InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryFirst 'Indicator of each first matching case as Primary'.
+VALUE LABELS  PrimaryFirst 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryFirst (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryFirst.
+EXECUTE.
+* Identify Duplicate Cases.
+SORT CASES BY salary(A) gender(A).
+MATCH FILES
+  /FILE=*
+  /BY salary
+  /FIRST=PrimaryFirst1
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst1).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryFirst1 InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryLast 'Indicator of each last matching case as Primary'.
+VALUE LABELS  PrimaryLast 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryLast (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryLast.
+EXECUTE.
+* Identify Unusual Cases.
+DETECTANOMALY
+  /VARIABLES SCALE=id ID=salary
+  /PRINT ANOMALYLIST
+  /HANDLEMISSING APPLY=NO
+  /CRITERIA PCTANOMALOUSCASES=5 ANOMALYCUTPOINT=2 MINNUMPEERS=1 MAXNUMPEERS=15 NUMREASONS=1.
+SORT CASES BY gender(A).
+SORT VARIABLES BY NAME (A).
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo_cs_1.sav'.
+DATASET NAME DataSet7 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\demo_cs_2.sav'.
+DATASET NAME DataSet8 WINDOW=FRONT.
+DATASET ACTIVATE DataSet0.
+DATASET CLOSE DataSet8.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet9 WINDOW=FRONT.
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=gender
+  /salary_mean=MEAN(salary).
+SORT CASES  BY gender.
+SPLIT FILE LAYERED BY gender.
+USE ALL.
+COMPUTE filter_$=(salary_mean = 26031.92).
+VARIABLE LABELS filter_$ 'salary_mean = 26031.92 (FILTER)'.
+VALUE LABELS filter_$ 0 'Not Selected' 1 'Selected'.
+FORMATS filter_$ (f1.0).
+FILTER BY filter_$.
+EXECUTE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+USE ALL.
+COMPUTE filter_$=(salbegin >=12000).
+VARIABLE LABELS filter_$ 'salbegin >=12000 (FILTER)'.
+VALUE LABELS filter_$ 0 'Not Selected' 1 'Selected'.
+FORMATS filter_$ (f1.0).
+FILTER BY filter_$.
+EXECUTE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+USE ALL.
+do if $casenum=1.
+compute #s_$_1=50.
+compute #s_$_2=474.
+end if.
+do if  #s_$_2 > 0.
+compute filter_$=uniform(1)* #s_$_2 < #s_$_1.
+compute #s_$_1=#s_$_1 - filter_$.
+compute #s_$_2=#s_$_2 - 1.
+else.
+compute filter_$=0.
+end if.
+VARIABLE LABELS filter_$ '50 from the first 474 cases (SAMPLE)'.
+FORMATS filter_$ (f1.0).
+FILTER  BY filter_$.
+EXECUTE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+FILTER OFF.
+USE 200 thru 474.
+EXECUTE.
+FILTER OFF.
+USE ALL.
+EXECUTE.
+USE ALL.
+FILTER BY id.
+EXECUTE.
+WEIGHT BY salary.
+WEIGHT BY salary.
+WEIGHT BY salary.
+COMPUTE sala=salary * 0.5 + salary.
+EXECUTE.
+RECODE salary (Lowest thru 15000=1) (15000 thru 25000=2) (25000 thru 35000=3) (400000 thru
+    Highest=4).
+EXECUTE.
+RECODE gender ('15000-25000'=2) ('25000-35000'=3) ('>=15000'=1) ('<=35000'=4) INTO sdss.
+EXECUTE.
+RECODE gender ('15000-25000'=2) ('25000-35000'=3) ('>=15000'=1) ('<=35000'=4) INTO sdss.
+EXECUTE.
+STRING sdss (A8).
+RECODE gender ('15000-25000'='2') ('25000-35000'='3') ('>=15000'='1') ('<=35000'='4') INTO sdss.
+EXECUTE.
+RECODE salary (Lowest thru 15000=1) (15000 thru 35000=2) (40000 thru Highest=3) INTO sdd.
+EXECUTE.
+AUTORECODE VARIABLES=gender
+  /INTO sex
+  /PRINT.
+* Visual Binning.
+*salary_mean.
+RECODE  salary_mean (MISSING=COPY) (LO THRU 26031.92=1) (LO THRU 29113.8930000000=2) (LO THRU
+    32195.8660000000=3) (LO THRU 35277.839=4) (LO THRU 38359.812=5) (LO THRU HI=6) (ELSE=SYSMIS) INTO
+    sami.
+VARIABLE LABELS  sami 'salary_mean (Binned)'.
+FORMATS  sami (F5.0).
+VALUE LABELS  sami 1 '<= 26031.92' 2 '26031.93 - 29113.89' 3 '29113.90 - 32195.87' 4 '32195.88 - '+
+    '35277.84' 5 '35277.85 - 38359.81' 6 '38359.82+'.
+VARIABLE LEVEL  sami (ORDINAL).
+EXECUTE.
+* Optimal Binning.
+OPTIMAL BINNING
+  /VARIABLES GUIDE=salbegin BIN=id SAVE=NO
+  /CRITERIA METHOD=MDLP PREPROCESS=EQUALFREQ (BINS=1000) FORCEMERGE=0 LOWERLIMIT=INCLUSIVE
+    LOWEREND=UNBOUNDED UPPEREND=UNBOUNDED
+  /MISSING SCOPE=PAIRWISE
+  /PRINT ENDPOINTS.
+RANK VARIABLES=salary (A) BY id
+  /RANK
+  /PRINT=YES
+  /TIES=MEAN.
+* Date and Time Wizard: cdate.
+COMPUTE  cdate=RND(($TIME - bdate) / (365.25 * time.days(1))).
+VARIABLE LABELS  cdate.
+VARIABLE LEVEL  cdate (SCALE).
+FORMATS  cdate (F5.0).
+VARIABLE WIDTH  cdate(5).
+EXECUTE.
+RMV /salbegin_1=SMEAN(salbegin).
+FREQUENCIES VARIABLES=gender
+  /ORDER=ANALYSIS.
+FREQUENCIES VARIABLES=prevexp
+  /ORDER=ANALYSIS.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_1.sav'.
+DATASET NAME DataSet10 WINDOW=FRONT.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\broadband_2.sav'.
+DATASET NAME DataSet11 WINDOW=FRONT.
+ADD FILES /FILE=*
+  /FILE='DataSet10'.
+EXECUTE.
+DATASET ACTIVATE DataSet0.
+DATASET CLOSE DataSet11.
+COUNT count=magazine1 magazinen2 magazine3('1').
+EXECUTE.
+* Define Multiple Response Sets.
+MRSETS
+  /MDGROUP NAME=$count CATEGORYLABELS=VARLABELS VARIABLES=magazine1 magazinen2 magazine3 VALUE='2'
+  /DELETE NAME=[$sanu]
+  /DISPLAY NAME=[$count].
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=$count DISPLAY=LABEL
+  /TABLE $count [COUNT F40.0]
+  /CATEGORIES VARIABLES=$count  EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+* Identify Unusual Cases.
+DETECTANOMALY
+  /VARIABLES CATEGORICAL=magazine1 magazinen2 magazine3
+  /PRINT ANOMALYLIST
+  /HANDLEMISSING APPLY=NO
+  /CRITERIA PCTANOMALOUSCASES=5 ANOMALYCUTPOINT=2 MINNUMPEERS=1 MAXNUMPEERS=15 NUMREASONS=1.
+DATASET CLOSE DataSet5.
+DATASET CLOSE DataSet3.
+DATASET CLOSE DataSet10.
+DATASET CLOSE DataSet7.
+DATASET ACTIVATE DataSet9.
+* Identify Unusual Cases.
+DETECTANOMALY
+  /VARIABLES CATEGORICAL=gender ID=bdate
+  /PRINT ANOMALYLIST
+  /HANDLEMISSING APPLY=NO
+  /CRITERIA PCTANOMALOUSCASES=5 ANOMALYCUTPOINT=2 MINNUMPEERS=1 MAXNUMPEERS=15 NUMREASONS=1.
+* Identify Unusual Cases.
+DETECTANOMALY
+  /VARIABLES CATEGORICAL=gender ID=bdate
+  /PRINT ANOMALYLIST
+  /HANDLEMISSING APPLY=NO
+  /CRITERIA PCTANOMALOUSCASES=5 ANOMALYCUTPOINT=2 MINNUMPEERS=1 MAXNUMPEERS=15 NUMREASONS=1.
+* Identify Duplicate Cases.
+SORT CASES BY salary_mean(A) salbegin(D).
+MATCH FILES
+  /FILE=*
+  /BY salary_mean
+  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryLast InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryFirst 'Indicator of each first matching case as Primary'.
+VALUE LABELS  PrimaryFirst 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryFirst (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryFirst.
+EXECUTE.
+DATASET ACTIVATE DataSet0.
+DATASET CLOSE DataSet9.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet12 WINDOW=FRONT.
+* Identify Duplicate Cases.
+SORT CASES BY educ(A) salbegin(A).
+MATCH FILES
+  /FILE=*
+  /BY educ
+  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryFirst InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryLast 'Indicator of each last matching case as Primary'.
+VALUE LABELS  PrimaryLast 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryLast (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryLast.
+EXECUTE.
+DATASET ACTIVATE DataSet6.
+* Identify Duplicate Cases.
+SORT CASES BY salary(A) gender(A).
+MATCH FILES
+  /FILE=*
+  /BY salary
+ /DROP = PrimaryLast  /FIRST=PrimaryFirst1
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst1).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryFirst1 InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryLast 'Indicator of each last matching case as Primary'.
+VALUE LABELS  PrimaryLast 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryLast (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryLast.
+EXECUTE.
+* Identify Duplicate Cases.
+SORT CASES BY salary(A) gender(A).
+MATCH FILES
+  /FILE=*
+  /BY salary
+ /DROP = PrimaryLast  /FIRST=PrimaryFirst1
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst1).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryFirst1 InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryLast 'Indicator of each last matching case as Primary'.
+VALUE LABELS  PrimaryLast 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryLast (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryLast.
+EXECUTE.
+DATASET ACTIVATE DataSet0.
+DATASET CLOSE DataSet6.
+DATASET ACTIVATE DataSet2.
+DATASET CLOSE DataSet0.
+DATASET ACTIVATE DataSet12.
+DATASET CLOSE DataSet2.
+Wednesday, January 19, 2022 9:34:51 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+EXAMINE VARIABLES=salbegin BY gender
+  /PLOT BOXPLOT STEMLEAF
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+EXAMINE VARIABLES=salbegin BY gender
+  /PLOT NONE
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+EXAMINE VARIABLES=salbegin BY gender
+  /PLOT BOXPLOT STEMLEAF
+  /COMPARE GROUPS
+  /STATISTICS NONE
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+EXAMINE VARIABLES=salbegin BY gender
+  /PLOT NONE
+  /STATISTICS DESCRIPTIVES EXTREME
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+CROSSTABS
+  /TABLES=educ BY gender
+  /FORMAT=AVALUE TABLES
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+RATIO STATISTICS salary WITH salbegin BY gender (ASCENDING)
+  /MISSING=EXCLUDE
+  /PRINT=COD MDCOV PRD.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=P-P
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=Q-Q
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=gender salary DISPLAY=LABEL
+  /TABLE gender BY salary [MEAN]
+  /CATEGORIES VARIABLES=gender ORDER=A KEY=VALUE EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: text.title(label("Simple Bar Count of Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: interval(position(gender*COUNT), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender SUM(salary)[name="SUM_salary"]
+    MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: SUM_salary=col(source(s), name("SUM_salary"))
+  COORD: polar.theta(startAngle(0))
+  GUIDE: axis(dim(1), null())
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Gender"))
+  GUIDE: text.title(label("Pie Chart Sum of Current Salary by Gender"))
+  SCALE: linear(dim(1), dataMinimum(), dataMaximum())
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("f", "m"))
+  ELEMENT: interval.stack(position(summary.percent(SUM_salary))), color.interior(gender))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary gender MISSING=LISTWISE REPORTMISSING=NO
+    DATAFILTER=gender(VALUES=ALL UNLABELED=INCLUDE)
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Histogram of Current Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salary))), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin gender MISSING=LISTWISE REPORTMISSING=NO
+    DATAFILTER=gender(VALUES=ALL UNLABELED=INCLUDE)
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  DATA: id=col(source(s), name("$CASENUM"), unit.category())
+  GUIDE: axis(dim(2), label("Beginning Salary"))
+  GUIDE: text.title(label("Simple Boxplot of Beginning Salary"))
+  GUIDE: text.footnote(label("Filtered by Gender variable"))
+  ELEMENT: schema(position(bin.quantile.letter(1*salbegin)), label(id))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin gender MISSING=LISTWISE REPORTMISSING=NO
+    DATAFILTER=gender(VALUES=ALL UNLABELED=INCLUDE)
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  DATA: id=col(source(s), name("$CASENUM"), unit.category())
+  GUIDE: axis(dim(2), label("Beginning Salary"))
+  GUIDE: text.title(label("Simple Boxplot of Beginning Salary"))
+  GUIDE: text.footnote(label("Filtered by Gender variable"))
+  ELEMENT: schema(position(bin.quantile.letter(1*salbegin)), label(id))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin gender MISSING=LISTWISE REPORTMISSING=NO
+    DATAFILTER=gender(VALUES=ALL UNLABELED=INCLUDE)
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  DATA: id=col(source(s), name("$CASENUM"), unit.category())
+  GUIDE: axis(dim(2), label("Beginning Salary"))
+  GUIDE: text.title(label("Simple Boxplot of Beginning Salary"))
+  GUIDE: text.footnote(label("Filtered by Gender variable"))
+  ELEMENT: schema(position(bin.quantile.letter(1*salbegin)), label(id))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Count Current Salary"))
+  ELEMENT: point(position(salbegin*COUNT))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Count Current Salary"))
+  GUIDE: text.title(label("sddredfd"))
+  ELEMENT: point(position(salbegin*COUNT))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  DATA: salbegin1=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Beginning Salary"))
+  GUIDE: text.title(label("sddredfd"))
+  ELEMENT: point(position(salbegin*salbegin1))
+END GPL.
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=gender salary DISPLAY=LABEL
+  /TABLE gender [C] BY salary [S][MEAN]
+  /CATEGORIES VARIABLES=gender ORDER=A KEY=VALUE EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+Sunday, January 23, 2022 5:26:20 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Sunday, January 23, 2022 9:49:06 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+Sunday, January 23, 2022 9:52:20 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+EXAMINE VARIABLES=salary BY jobcat
+  /PLOT BOXPLOT STEMLEAF
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+CROSSTABS
+  /TABLES=educ BY gender
+  /FORMAT=AVALUE TABLES
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+RATIO STATISTICS salary WITH salbegin BY gender (ASCENDING)
+  /MISSING=EXCLUDE
+  /PRINT=COD MDCOV PRD.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=P-P
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=Q-Q
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=gender salary DISPLAY=LABEL
+  /TABLE gender BY salary [MEAN]
+  /CATEGORIES VARIABLES=gender ORDER=A KEY=VALUE EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: text.title(label("Simple Bar Count of Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: interval(position(gender*COUNT), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender SUM(salbegin)[name="SUM_salbegin"]
+    MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: SUM_salbegin=col(source(s), name("SUM_salbegin"))
+  COORD: polar.theta(startAngle(0))
+  GUIDE: axis(dim(1), null())
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Gender"))
+  GUIDE: text.title(label("Pie Chart Sum of Beginning Salary by Gender"))
+  SCALE: linear(dim(1), dataMinimum(), dataMaximum())
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("f", "m"))
+  ELEMENT: interval.stack(position(summary.percent(SUM_salbegin))), color.interior(gender))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Histogram of Beginning Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salbegin))), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Histogram of Beginning Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salbegin))), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Histogram of Beginning Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salbegin))), shape.interior(shape.square))
+END GPL.
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (salbegin)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (salbegin)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+T-TEST
+  /TESTVAL=25000
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST
+  /TESTVAL=25000
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST GROUPS=gender('f' 'm')
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST PAIRS=salary WITH salbegin (PAIRED)
+  /CRITERIA=CI(.9500)
+  /MISSING=ANALYSIS.
+ONEWAY salary BY jobcat
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 ALPHA(0.05).
+ONEWAY salary BY jobcat
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 ALPHA(0.05).
+ONEWAY salary BY jobcat
+  /MISSING ANALYSIS
+  /POSTHOC=TUKEY LSD T2 T3 ALPHA(0.05).
+ONEWAY salary BY jobcat
+  /MISSING ANALYSIS
+  /POSTHOC=TUKEY LSD ALPHA(0.05).
+ONEWAY salary BY jobcat
+  /PLOT MEANS
+  /MISSING ANALYSIS
+  /POSTHOC=TUKEY LSD ALPHA(0.05).
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (salbegin) WILCOXON(TESTVALUE=35000)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (salbegin) WILCOXON(TESTVALUE=35000)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (gender) MANN_WHITNEY MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+NPAR TESTS
+  /K-W=salary BY jobcat(999 9999)
+  /MISSING ANALYSIS.
+NPAR TESTS
+  /K-W=salary BY jobcat(999 9999)
+  /MISSING ANALYSIS.
+NPAR TESTS
+  /K-W=salary BY jobcat(999 9999)
+  /MISSING ANALYSIS.
+NPAR TESTS
+  /K-W=salary BY jobcat(1 3)
+  /MISSING ANALYSIS.
+NPAR TESTS
+  /M-W= salary BY jobcat(1 2)
+  /MISSING ANALYSIS.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (jobcat) MANN_WHITNEY MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+NPAR TESTS
+  /K-W=salary BY jobcat(1 3)
+  /MISSING ANALYSIS.
+MEANS TABLES=salary BY gender
+  /CELLS=MEAN COUNT STDDEV.
+Wednesday, January 26, 2022 12:31:36 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Thursday, January 27, 2022 4:49:13 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Friday, January 28, 2022 12:33:37 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+FREQUENCIES VARIABLES=salary
+  /ORDER=ANALYSIS.
+EXAMINE VARIABLES=salary BY educ
+  /PLOT BOXPLOT STEMLEAF
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+CROSSTABS
+  /TABLES=gender BY salary
+  /FORMAT=AVALUE TABLES
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+RATIO STATISTICS salary WITH salbegin BY gender (ASCENDING)
+  /MISSING=EXCLUDE
+  /PRINT=COD MDCOV PRD.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=P-P
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=Q-Q
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=gender educ salary DISPLAY=LABEL
+  /TABLE gender > educ BY salary [MEAN]
+  /CATEGORIES VARIABLES=gender educ ORDER=A KEY=VALUE EMPTY=INCLUDE MISSING=EXCLUDE
+  /CRITERIA CILEVEL=95.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: text.title(label("Simple Bar Count of Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: interval(position(gender*COUNT), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] jobcat MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+  COORD: rect(dim(1,2), cluster(3,0))
+  GUIDE: axis(dim(3), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Employment Category"))
+  GUIDE: text.title(label("Clustered Bar Count of Gender by Employment Category"))
+  SCALE: cat(dim(3), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("1", "2", "3"))
+  SCALE: cat(dim(1), include("1", "2", "3"))
+  ELEMENT: interval(position(jobcat*COUNT*gender), color.interior(jobcat),
+    shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] educ MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: educ=col(source(s), name("educ"), unit.category())
+  COORD: rect(dim(1,2), cluster(3,0))
+  GUIDE: axis(dim(3), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Educational Level (years)"))
+  GUIDE: text.title(label("Clustered Bar Count of Gender by Educational Level (years)"))
+  SCALE: cat(dim(3), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("8", "12", "14", "15", "16", "17",
+    "18", "19", "20", "21"))
+  SCALE: cat(dim(1), include("8", "12", "14", "15", "16", "17", "18", "19", "20", "21"))
+  ELEMENT: interval(position(educ*COUNT*gender), color.interior(educ), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] minority
+    MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: minority=col(source(s), name("minority"), unit.category())
+  COORD: rect(dim(1,2), cluster(3,0))
+  GUIDE: axis(dim(3), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Minority Classification"))
+  GUIDE: text.title(label("Clustered Bar Count of Gender by Minority Classification"))
+  SCALE: cat(dim(3), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("0", "1"))
+  SCALE: cat(dim(1), include("0", "1"))
+  ELEMENT: interval(position(minority*COUNT*gender), color.interior(minority),
+    shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=jobcat COUNT()[name="COUNT"] gender MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  COORD: rect(dim(1,2), cluster(3,0))
+  GUIDE: axis(dim(3), label("Employment Category"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Gender"))
+  GUIDE: text.title(label("Clustered Bar Count of Employment Category by Gender"))
+  SCALE: cat(dim(3), include("1", "2", "3"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("f", "m"))
+  SCALE: cat(dim(1), include("f", "m"))
+  ELEMENT: interval(position(gender*COUNT*jobcat), color.interior(gender),
+    shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] educ MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: educ=col(source(s), name("educ"), unit.category())
+  COORD: rect(dim(1,2), cluster(3,0))
+  GUIDE: axis(dim(3), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Educational Level (years)"))
+  GUIDE: text.title(label("Clustered Bar Count of Gender by Educational Level (years)"))
+  SCALE: cat(dim(3), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("8", "12", "14", "15", "16", "17",
+    "18", "19", "20", "21"))
+  SCALE: cat(dim(1), include("8", "12", "14", "15", "16", "17", "18", "19", "20", "21"))
+  ELEMENT: interval(position(educ*COUNT*gender), color.interior(educ), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] jobcat MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Employment Category"))
+  GUIDE: text.title(label("Stacked Bar Count of Gender by Employment Category"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("1", "2", "3"))
+  ELEMENT: interval.stack(position(gender*COUNT), color.interior(jobcat),
+    shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Beginning Salary"))
+  GUIDE: text.title(label("Simple Line of Beginning Salary by Current Salary"))
+  ELEMENT: line(position(salary*salbegin), missing.wings())
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  COORD: polar.theta(startAngle(0))
+  GUIDE: axis(dim(1), null())
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Gender"))
+  GUIDE: text.title(label("Pie Chart Count of Gender"))
+  SCALE: linear(dim(1), dataMinimum(), dataMaximum())
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("f", "m"))
+  ELEMENT: interval.stack(position(summary.percent(COUNT))), color.interior(gender))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary jobcat MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE
+  /FITLINE TOTAL=YES.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Employment Category"))
+  GUIDE: text.title(label("Simple Scatter with Fit Line of Employment Category by Current Salary"))
+  SCALE: cat(dim(2), include("1", "2", "3"))
+  ELEMENT: point(position(salary*jobcat))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary gender MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE
+  /FITLINE TOTAL=YES.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Gender"))
+  GUIDE: text.title(label("Simple Scatter with Fit Line of Gender by Current Salary"))
+  SCALE: cat(dim(2), include("f", "m"))
+  ELEMENT: point(position(salary*gender))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Beginning Salary"))
+  GUIDE: text.title(label("Simple Histogram of Beginning Salary by Current Salary"))
+  ELEMENT: interval(position(salary*salbegin), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: text.title(label("Simple Histogram Count of Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: interval(position(gender*COUNT), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary educ MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  DATA: educ=col(source(s), name("educ"), unit.category())
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Educational Level (years)"))
+  GUIDE: text.title(label("Stacked Histogram of Current Salary by Educational Level (years)"))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("8", "12", "14", "15", "16", "17",
+    "18", "19", "20", "21"))
+  ELEMENT: interval.stack(position(summary.count(bin.rect(salary))), color.interior(educ),
+    shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Histogram of Current Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salary))), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender salary MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: salary=col(source(s), name("salary"))
+  DATA: id=col(source(s), name("$CASENUM"), unit.category())
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Current Salary"))
+  GUIDE: text.title(label("Simple Boxplot of Current Salary by Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: schema(position(bin.quantile.letter(gender*salary)), label(id))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender salary MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: salary=col(source(s), name("salary"))
+  DATA: id=col(source(s), name("$CASENUM"), unit.category())
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Current Salary"))
+  GUIDE: text.title(label("box"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: schema(position(bin.quantile.letter(gender*salary)), label(id))
+END GPL.
+GRAPH
+  /BAR(SIMPLE)=COUNT BY gender.
+GRAPH
+  /BAR(SIMPLE)=COUNT BY gender
+  /PANEL ROWVAR=salary ROWOP=CROSS.
+GRAPH
+  /BAR(GROUPED)=COUNT BY gender BY jobcat
+  /PANEL ROWVAR=minority ROWOP=CROSS.
+GRAPH
+  /BAR(SIMPLE)=COUNT BY gender
+  /PANEL ROWVAR=minority ROWOP=CROSS.
+GRAPH
+  /BAR(STACK)=COUNT BY gender BY jobcat.
+GRAPH
+  /PIE=COUNT BY jobcat
+  /PANEL ROWVAR=gender ROWOP=CROSS.
+EXAMINE VARIABLES=jobcat BY gender
+  /PLOT=BOXPLOT
+  /STATISTICS=NONE
+  /NOTOTAL.
+EXAMINE VARIABLES=salary BY gender
+  /PLOT=BOXPLOT
+  /STATISTICS=NONE
+  /NOTOTAL.
+GRAPH
+  /SCATTERPLOT(BIVAR)=salary WITH educ
+  /MISSING=LISTWISE.
+GRAPH
+  /HISTOGRAM=salary.
+GRAPH
+  /HISTOGRAM=salary
+  /PANEL ROWVAR=educ ROWOP=CROSS.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary educ MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  DATA: educ=col(source(s), name("educ"), unit.category())
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Educational Level (years)"))
+  GUIDE: text.title(label("Stacked Histogram of Current Salary by Educational Level (years)"))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("8", "12", "14", "15", "16", "17",
+    "18", "19", "20", "21"))
+  ELEMENT: interval.stack(position(summary.count(bin.rect(salary))), color.interior(educ),
+    shape.interior(shape.square))
+END GPL.
+Friday, January 28, 2022 6:45:10 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Friday, January 28, 2022 6:47:54 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: text.title(label("Simple Bar Count of Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: interval(position(gender*COUNT), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: text.title(label("Simple Bar Count of Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: interval(position(gender*COUNT), shape.interior(shape.square))
+END GPL.
+Friday, January 28, 2022 10:18:15 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Saturday, February 5, 2022 7:00:11 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+NEW FILE.
+DATASET NAME DataSet1 WINDOW=FRONT.
+NEW FILE.
+DATASET NAME DataSet2 WINDOW=FRONT.
+NEW FILE.
+DATASET NAME DataSet3 WINDOW=FRONT.
+DATASET ACTIVATE DataSet1.
+DATASET CLOSE DataSet3.
+DATASET ACTIVATE DataSet2.
+DATASET CLOSE DataSet1.
+Saturday, February 5, 2022 7:03:29 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+NEW FILE.
+DATASET NAME DataSet1 WINDOW=FRONT.
+Saturday, February 5, 2022 7:04:05 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Saturday, February 5, 2022 7:04:34 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+NEW FILE.
+DATASET NAME DataSet1 WINDOW=FRONT.
+Saturday, February 5, 2022 7:07:38 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Saturday, February 5, 2022 7:08:29 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+NEW FILE.
+DATASET NAME DataSet1 WINDOW=FRONT.
+Saturday, February 5, 2022 7:10:30 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Saturday, February 5, 2022 7:12:44 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+NEW FILE.
+DATASET NAME DataSet1 WINDOW=FRONT.
+NEW FILE.
+DATASET NAME DataSet2 WINDOW=FRONT.
+DATASET ACTIVATE DataSet1.
+DATASET CLOSE DataSet2.
+Saturday, February 5, 2022 7:22:46 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Saturday, February 5, 2022 7:22:49 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+Saturday, February 5, 2022 7:28:18 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+MEANS TABLES=salary
+  /CELLS=MEAN COUNT STDDEV.
+T-TEST
+  /TESTVAL=0
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST
+  /TESTVAL=2100
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST GROUPS=gender('f' 'm')
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST PAIRS=salary WITH salbegin (PAIRED)
+  /CRITERIA=CI(.9500)
+  /MISSING=ANALYSIS.
+ONEWAY salary BY salbegin
+  /STATISTICS HOMOGENEITY
+  /MISSING ANALYSIS.
+ONEWAY salary BY salbegin
+  /STATISTICS HOMOGENEITY
+  /MISSING ANALYSIS
+  /POSTHOC=LSD ALPHA(0.05).
+ONEWAY salary BY salbegin
+  /STATISTICS HOMOGENEITY
+  /MISSING ANALYSIS
+  /POSTHOC=T3 ALPHA(0.05).
+ONEWAY salary BY salbegin
+  /STATISTICS HOMOGENEITY
+  /PLOT MEANS
+  /MISSING ANALYSIS
+  /POSTHOC=T3 ALPHA(0.05).
+ONEWAY salary BY educ
+  /STATISTICS HOMOGENEITY
+  /PLOT MEANS
+  /MISSING ANALYSIS
+  /POSTHOC=T3 ALPHA(0.05).
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (id gender bdate educ jobcat salary salbegin jobtime prevexp minority) WILCOXON(TESTVALUE=3000)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (gender) MANN_WHITNEY MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+NPAR TESTS
+  /K-W=salary BY jobcat(1 3)
+  /MISSING ANALYSIS.
+CORRELATIONS
+  /VARIABLES=salary jobtime
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER educ jobcat.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER educ prevexp
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER gender bdate
+  /CONTRAST (gender)=Indicator
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER gender bdate
+  /CONTRAST (gender)=Indicator
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER educ prevexp
+  /PARTIALPLOT ALL
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+MEANS TABLES=salary
+  /CELLS=MEAN COUNT STDDEV.
+MEANS TABLES=salary
+  /CELLS=MEAN COUNT STDDEV.
+T-TEST
+  /TESTVAL=2100
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST GROUPS=gender('f' 'm')
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+CORRELATIONS
+  /VARIABLES=salary jobtime
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER educ prevexp
+  /PARTIALPLOT ALL
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER gender bdate
+  /CONTRAST (gender)=Indicator
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER gender bdate
+  /CONTRAST (gender)=Indicator
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+Saturday, February 5, 2022 9:38:02 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+Sunday, February 6, 2022 4:28:02 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+FREQUENCIES VARIABLES=gender
+  /ORDER=ANALYSIS.
+DESCRIPTIVES VARIABLES=salbegin
+  /STATISTICS=MEAN STDDEV MIN MAX.
+EXAMINE VARIABLES=salary BY gender
+  /PLOT BOXPLOT STEMLEAF NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+CROSSTABS
+  /TABLES=educ BY gender
+  /FORMAT=AVALUE TABLES
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+RATIO STATISTICS salary WITH salbegin BY gender (ASCENDING)
+  /MISSING=EXCLUDE
+  /PRINT=COD MDCOV PRD.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=P-P
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=salary
+  /LN
+  /NOSTANDARDIZE
+  /TYPE=P-P
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=salary
+  /LN
+  /NOSTANDARDIZE
+  /TYPE=P-P
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=LNORMAL.
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=gender salary DISPLAY=LABEL
+  /TABLE gender BY salary [MEAN, MAXIMUM]
+  /CATEGORIES VARIABLES=gender ORDER=A KEY=VALUE EMPTY=INCLUDE
+  /CRITERIA CILEVEL=95.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Bar of Current Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salary))), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: text.title(label("Simple Bar Count of Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: interval(position(gender*COUNT), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=jobcat COUNT()[name="COUNT"] gender MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  COORD: rect(dim(1,2), cluster(3,0))
+  GUIDE: axis(dim(3), label("Employment Category"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Gender"))
+  GUIDE: text.title(label("Clustered Bar Count of Employment Category by Gender"))
+  SCALE: cat(dim(3), include("1", "2", "3"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("f", "m"))
+  SCALE: cat(dim(1), include("f", "m"))
+  ELEMENT: interval(position(gender*COUNT*jobcat), color.interior(gender),
+    shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=educ COUNT()[name="COUNT"] gender MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: educ=col(source(s), name("educ"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  GUIDE: axis(dim(1), label("Educational Level (years)"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Gender"))
+  GUIDE: text.title(label("Stacked Bar Count of Educational Level (years) by Gender"))
+  SCALE: cat(dim(1), include("8", "12", "14", "15", "16", "17", "18", "19", "20", "21"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("f", "m"))
+  ELEMENT: interval.stack(position(educ*COUNT), color.interior(gender),
+    shape.interior(shape.square))
+END GPL.
+GRAPH
+  /BAR(GROUPED)=COUNT BY gender BY salary.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset"
+    VARIABLES=gender[LEVEL=nominal]
+    MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=VIZTEMPLATE(NAME="Pie of Counts"[LOCATION=LOCAL]
+    MAPPING( "categories"="gender"[DATASET="graphdataset"] "Summary"="count"))
+    VIZSTYLESHEET="Traditional"[LOCATION=LOCAL]
+    LABEL='PIE OF COUNTS: gender'
+    DEFAULTTEMPLATE=NO.
+GRAPH
+  /BAR(SIMPLE)=COUNT BY jobcat
+  /PANEL ROWVAR=gender ROWOP=CROSS.
+GRAPH
+  /BAR(SIMPLE)=MEAN(salary) MEAN(educ)
+  /MISSING=LISTWISE.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Histogram of Current Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salary))), shape.interior(shape.square))
+END GPL.
+EXAMINE VARIABLES=salary
+  /COMPARE VARIABLE
+  /PLOT=BOXPLOT
+  /STATISTICS=NONE
+  /NOTOTAL
+  /MISSING=LISTWISE.
+EXAMINE VARIABLES=salary BY gender
+  /PLOT=BOXPLOT
+  /STATISTICS=NONE
+  /NOTOTAL.
+MEANS TABLES=salary BY gender
+  /CELLS=MEAN COUNT STDDEV.
+T-TEST
+  /TESTVAL=2100
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST GROUPS=gender('f' 'm')
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST GROUPS=gender('f' 'm')
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST PAIRS=salary WITH salbegin (PAIRED)
+  /CRITERIA=CI(.9500)
+  /MISSING=ANALYSIS.
+CORRELATIONS
+  /VARIABLES=id prevexp
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT id
+  /METHOD=ENTER educ salary
+  /PARTIALPLOT ALL
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+LOGISTIC REGRESSION VARIABLES gender
+  /METHOD=ENTER educ
+  /CONTRAST (educ)=Indicator
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+LOGISTIC REGRESSION VARIABLES gender
+  /METHOD=ENTER educ
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER educ salbegin
+  /CONTRAST (salbegin)=Indicator
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER educ salbegin
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER educ
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+MEANS TABLES=salary BY gender
+  /CELLS=MEAN COUNT STDDEV.
+T-TEST
+  /TESTVAL=2100
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST GROUPS=gender('f' 'm')
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+T-TEST PAIRS=salary WITH salbegin (PAIRED)
+  /CRITERIA=CI(.9500)
+  /MISSING=ANALYSIS.
+ONEWAY salary BY minority
+  /STATISTICS HOMOGENEITY
+  /MISSING ANALYSIS
+  /POSTHOC=LSD T3 ALPHA(0.05).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER educ jobtime prevexp
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+ONEWAY salary BY minority
+  /STATISTICS HOMOGENEITY
+  /MISSING ANALYSIS
+  /POSTHOC=LSD T3 ALPHA(0.05).
+ONEWAY salary BY minority
+  /STATISTICS HOMOGENEITY
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 ALPHA(0.05).
+ONEWAY salary BY minority
+  /STATISTICS HOMOGENEITY
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 ALPHA(0.05).
+ONEWAY salary BY minority
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 GH ALPHA(0.05).
+ONEWAY salary BY minority
+  /PLOT MEANS
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 GH ALPHA(0.05).
+ONEWAY salary BY jobcat
+  /PLOT MEANS
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 GH ALPHA(0.05).
+EXAMINE VARIABLES=salary BY gender
+  /PLOT BOXPLOT STEMLEAF NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+FREQUENCIES VARIABLES=gender
+  /ORDER=ANALYSIS.
+DESCRIPTIVES VARIABLES=salbegin
+  /STATISTICS=MEAN STDDEV MIN MAX KURTOSIS SKEWNESS.
+DESCRIPTIVES VARIABLES=salbegin
+  /STATISTICS=MEAN STDDEV MIN MAX.
+EXAMINE VARIABLES=salary BY gender
+  /PLOT BOXPLOT STEMLEAF NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+CROSSTABS
+  /TABLES=educ BY gender
+  /FORMAT=AVALUE TABLES
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+RATIO STATISTICS salary WITH salbegin BY gender (ASCENDING)
+  /MISSING=EXCLUDE
+  /PRINT=COD MDCOV PRD.
+PPLOT
+  /VARIABLES=educ
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=Q-Q
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=educ
+  /LN
+  /NOSTANDARDIZE
+  /TYPE=Q-Q
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=Q-Q
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+PPLOT
+  /VARIABLES=salary
+  /LN
+  /NOSTANDARDIZE
+  /TYPE=Q-Q
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+CORRELATIONS
+  /VARIABLES=id prevexp
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+NPAR TESTS
+  /K-W=educ BY jobcat(1 3)
+  /MISSING ANALYSIS.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (gender) MANN_WHITNEY MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+CORRELATIONS
+  /VARIABLES=id prevexp
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin educ MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  DATA: educ=col(source(s), name("educ"), unit.category())
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Educational Level (years)"))
+  GUIDE: text.title(label("Stacked Histogram of Beginning Salary by Educational Level (years)"))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("8", "12", "14", "15", "16", "17",
+    "18", "19", "20", "21"))
+  ELEMENT: interval.stack(position(summary.count(bin.rect(salbegin))), color.interior(educ),
+    shape.interior(shape.square))
+END GPL.
+CORRELATIONS
+  /VARIABLES=id prevexp
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (id gender bdate educ jobcat salbegin jobtime prevexp minority VAR00001 VAR00002) WILCOXON(TESTVALUE=1000)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+* Identify Duplicate Cases.
+SORT CASES BY gender(A) educ(A).
+MATCH FILES
+  /FILE=*
+  /BY gender
+  /FIRST=PrimaryFirst
+  /LAST=PrimaryLast.
+DO IF (PrimaryFirst).
+COMPUTE  MatchSequence=1-PrimaryLast.
+ELSE.
+COMPUTE  MatchSequence=MatchSequence+1.
+END IF.
+LEAVE  MatchSequence.
+FORMATS  MatchSequence (f7).
+COMPUTE  InDupGrp=MatchSequence>0.
+SORT CASES InDupGrp(D).
+MATCH FILES
+  /FILE=*
+  /DROP=PrimaryFirst InDupGrp MatchSequence.
+VARIABLE LABELS  PrimaryLast 'Indicator of each last matching case as Primary'.
+VALUE LABELS  PrimaryLast 0 'Duplicate Case' 1 'Primary Case'.
+VARIABLE LEVEL  PrimaryLast (ORDINAL).
+FREQUENCIES VARIABLES=PrimaryLast.
+EXECUTE.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Bar of Beginning Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salbegin))), shape.interior(shape.square))
+END GPL.
+GRAPH
+  /BAR(SIMPLE)=MEAN(salary) MEAN(salbegin)
+  /MISSING=LISTWISE.
+GRAPH
+  /BAR(GROUPED)=MEAN(bdate) MEAN(jobcat) BY minority
+  /MISSING=LISTWISE.
+CROSSTABS
+  /TABLES=educ BY gender
+  /FORMAT=AVALUE TABLES
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+MEANS TABLES=salary
+  /CELLS=MEAN COUNT STDDEV.
+MEANS TABLES=salary BY prevexp
+  /CELLS=MEAN COUNT STDDEV.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (gender) MANN_WHITNEY MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+NPAR TESTS
+  /K-W=educ BY jobcat(1 3)
+  /MISSING ANALYSIS.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender salary MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: salary=col(source(s), name("salary"))
+  DATA: id=col(source(s), name("$CASENUM"), unit.category())
+  GUIDE: axis(dim(1), label("Gender"))
+  GUIDE: axis(dim(2), label("Current Salary"))
+  GUIDE: text.title(label("Simple Boxplot of Current Salary by Gender"))
+  SCALE: cat(dim(1), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  ELEMENT: schema(position(bin.quantile.letter(gender*salary)), label(id))
+END GPL.
+PARTIAL CORR
+  /VARIABLES=salary salbegin BY educ
+  /SIGNIFICANCE=TWOTAIL
+  /MISSING=LISTWISE.
+PARTIAL CORR
+  /VARIABLES=salary salbegin BY bdate
+  /SIGNIFICANCE=TWOTAIL
+  /MISSING=LISTWISE.
+PARTIAL CORR
+  /VARIABLES=salary bdate BY educ
+  /SIGNIFICANCE=TWOTAIL
+  /MISSING=LISTWISE.
+CORRELATIONS
+  /VARIABLES=id prevexp
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+CORRELATIONS
+  /VARIABLES=salary salbegin
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+PARTIAL CORR
+  /VARIABLES=salary salbegin prevexp BY educ
+  /SIGNIFICANCE=TWOTAIL
+  /STATISTICS=CORR
+  /MISSING=LISTWISE.
+PARTIAL CORR
+  /VARIABLES=salary salbegin prevexp BY educ
+  /SIGNIFICANCE=TWOTAIL
+  /MISSING=LISTWISE.
+PARTIAL CORR
+  /VARIABLES=salary salbegin BY prevexp
+  /SIGNIFICANCE=TWOTAIL
+  /MISSING=LISTWISE.
+PARTIAL CORR
+  /VARIABLES=salary salbegin prevexp BY educ
+  /SIGNIFICANCE=TWOTAIL
+  /STATISTICS=CORR
+  /MISSING=LISTWISE.
+PARTIAL CORR
+  /VARIABLES=salary prevexp jobcat BY educ
+  /SIGNIFICANCE=TWOTAIL
+  /STATISTICS=CORR
+  /MISSING=LISTWISE.
+PARTIAL CORR
+  /VARIABLES=salary jobcat BY prevexp
+  /SIGNIFICANCE=TWOTAIL
+  /STATISTICS=CORR
+  /MISSING=LISTWISE.
+RECODE gender ('f'=1) (ELSE=0) INTO sex.
+EXECUTE.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER sex salbegin jobcat prevexp.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER sex salbegin jobcat prevexp
+  /PARTIALPLOT ALL
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER prevexp minority jobcat sex
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (salary) WILCOXON(TESTVALUE=25000)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (gender) MANN_WHITNEY MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+EXAMINE VARIABLES=salary BY gender
+  /PLOT BOXPLOT STEMLEAF NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+NPAR TESTS
+  /K-W=salary BY jobcat(1 3)
+  /MISSING ANALYSIS.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (gender) MANN_WHITNEY MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (jobcat) KRUSKAL_WALLIS(COMPARE=PAIRWISE) MEDIAN(TESTVALUE=SAMPLE COMPARE=PAIRWISE)
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Histogram of Beginning Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salbegin))), shape.interior(shape.square))
+END GPL.
+ONEWAY salary BY jobcat
+  /STATISTICS HOMOGENEITY
+  /PLOT MEANS
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 GH ALPHA(0.05).
+ONEWAY salary BY jobcat
+  /STATISTICS HOMOGENEITY
+  /PLOT MEANS
+  /MISSING ANALYSIS.
+ONEWAY salary BY jobcat
+  /MISSING ANALYSIS
+  /POSTHOC=T2 ALPHA(0.05).
+T-TEST GROUPS=gender('f' 'm')
+  /MISSING=ANALYSIS
+  /VARIABLES=salary
+  /CRITERIA=CI(.95).
+Monday, February 7, 2022 9:19:14 AM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+*Nonparametric Tests: One Sample.
+NPTESTS
+  /ONESAMPLE TEST (salary) KOLMOGOROV_SMIRNOV(NORMAL=SAMPLE )
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05 CILEVEL=95.
+*Nonparametric Tests: Independent Samples.
+NPTESTS
+  /INDEPENDENT TEST (salary) GROUP (gender) KOLMOGOROV_SMIRNOV
+  /MISSING SCOPE=ANALYSIS USERMISSING=EXCLUDE
+  /CRITERIA ALPHA=0.05  CILEVEL=95.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Bar of Beginning Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salbegin))), shape.interior(shape.square))
+END GPL.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER jobcat salbegin prevexp
+  /PARTIALPLOT ALL
+  /SCATTERPLOT=(*ZPRED ,*ZRESID)
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER jobcat salbegin prevexp
+  /PARTIALPLOT ALL
+  /SCATTERPLOT=(*ZRESID ,*ZPRED)
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+PPLOT
+  /VARIABLES=salary
+  /NOLOG
+  /NOSTANDARDIZE
+  /TYPE=P-P
+  /FRACTION=BLOM
+  /TIES=MEAN
+  /DIST=NORMAL.
+RATIO STATISTICS salary WITH salbegin BY gender (ASCENDING)
+  /MISSING=EXCLUDE
+  /PRINT=COD MDCOV PRD.
+EXAMINE VARIABLES=salary BY jobcat
+  /PLOT BOXPLOT STEMLEAF
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salbegin MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salbegin=col(source(s), name("salbegin"))
+  GUIDE: axis(dim(1), label("Beginning Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Bar of Beginning Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salbegin))), shape.interior(shape.square))
+END GPL.
+NPAR TESTS
+  /K-W=salary BY jobcat(1 3)
+  /MISSING ANALYSIS.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER jobcat
+  /PARTIALPLOT ALL
+  /SCATTERPLOT=(*ZRESID ,*ZPRED)
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+FREQUENCIES VARIABLES=salary
+  /HISTOGRAM NORMAL
+  /ORDER=ANALYSIS.
+EXAMINE VARIABLES=salary
+  /PLOT BOXPLOT NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER jobcat salbegin
+  /PARTIALPLOT ALL
+  /SCATTERPLOT=(*ZRESID ,*ZPRED)
+  /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+LOGISTIC REGRESSION VARIABLES salary
+  /METHOD=ENTER prevexp jobcat salbegin
+  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=salary MISSING=LISTWISE REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: salary=col(source(s), name("salary"))
+  GUIDE: axis(dim(1), label("Current Salary"))
+  GUIDE: axis(dim(2), label("Frequency"))
+  GUIDE: text.title(label("Simple Bar of Current Salary"))
+  ELEMENT: interval(position(summary.count(bin.rect(salary))), shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] jobcat MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+  COORD: rect(dim(1,2), cluster(3,0))
+  GUIDE: axis(dim(3), label("Gender"))
+  GUIDE: axis(dim(2), label("Count"))
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Employment Category"))
+  GUIDE: text.title(label("Clustered Bar Count of Gender by Employment Category"))
+  SCALE: cat(dim(3), include("f", "m"))
+  SCALE: linear(dim(2), include(0))
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("1", "2", "3"))
+  SCALE: cat(dim(1), include("1", "2", "3"))
+  ELEMENT: interval(position(jobcat*COUNT*gender), color.interior(jobcat),
+    shape.interior(shape.square))
+END GPL.
+* Chart Builder.
+GGRAPH
+  /GRAPHDATASET NAME="graphdataset" VARIABLES=gender COUNT()[name="COUNT"] MISSING=LISTWISE
+    REPORTMISSING=NO
+  /GRAPHSPEC SOURCE=INLINE.
+BEGIN GPL
+  SOURCE: s=userSource(id("graphdataset"))
+  DATA: gender=col(source(s), name("gender"), unit.category())
+  DATA: COUNT=col(source(s), name("COUNT"))
+  COORD: polar.theta(startAngle(0))
+  GUIDE: axis(dim(1), null())
+  GUIDE: legend(aesthetic(aesthetic.color.interior), label("Gender"))
+  GUIDE: text.title(label("Pie Chart Count of Gender"))
+  SCALE: linear(dim(1), dataMinimum(), dataMaximum())
+  SCALE: cat(aesthetic(aesthetic.color.interior), include("f", "m"))
+  ELEMENT: interval.stack(position(summary.percent(COUNT))), color.interior(gender))
+END GPL.
+EXAMINE VARIABLES=salary
+  /COMPARE VARIABLE
+  /PLOT=BOXPLOT
+  /STATISTICS=NONE
+  /NOTOTAL
+  /MISSING=LISTWISE.
+EXAMINE VARIABLES=salary BY gender
+  /PLOT=BOXPLOT
+  /STATISTICS=NONE
+  /NOTOTAL.
+EXAMINE VARIABLES=salary bdate BY gender
+  /COMPARE VARIABLE
+  /PLOT=BOXPLOT
+  /STATISTICS=NONE
+  /NOTOTAL
+  /MISSING=LISTWISE.
+GRAPH
+  /SCATTERPLOT(BIVAR)=educ WITH salary
+  /MISSING=LISTWISE.
+EXAMINE VARIABLES=salary BY gender
+  /PLOT BOXPLOT NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+Sunday, February 13, 2022 9:50:00 PM EAT
+*>Warning # 849 in column 23.  Text: en_AS
+*>The LOCALE subcommand of the SET command has an invalid parameter.  It could
+*>not be mapped to a valid backend locale.
+GET
+  FILE='C:\Program Files (x86)\IBM\SPSS\Statistics\26\Samples\English\Employee data.sav'.
+DATASET NAME DataSet1 WINDOW=FRONT.
+CORRELATIONS
+  /VARIABLES=salary id bdate educ jobcat salbegin jobtime prevexp minority
+  /PRINT=TWOTAIL NOSIG
+  /MISSING=PAIRWISE.
+MEANS TABLES=salary
+  /CELLS=STDDEV MAX RANGE MIN VAR MEDIAN KURT SKEW.
+EXAMINE VARIABLES=salary
+  /PLOT HISTOGRAM NPPLOT
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+FREQUENCIES VARIABLES=gender
+  /ORDER=ANALYSIS.
+FREQUENCIES VARIABLES=gender
+  /PIECHART FREQ
+  /ORDER=ANALYSIS.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=STEPWISE id bdate jobcat jobtime.
+GRAPH
+  /SCATTERPLOT(BIVAR)=bdate WITH id
+  /MISSING=LISTWISE.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER id bdate jobcat jobtime
+  /SAVE PRED RESID.
+GRAPH
+  /SCATTERPLOT(BIVAR)=PRE_1 WITH RES_1
+  /MISSING=LISTWISE.
+EXAMINE VARIABLES=PRE_1 RES_1
+  /PLOT HISTOGRAM NPPLOT
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+REGRESSION
+  /MISSING LISTWISE
+  /STATISTICS COEFF OUTS R ANOVA
+  /CRITERIA=PIN(.05) POUT(.10)
+  /NOORIGIN
+  /DEPENDENT salary
+  /METHOD=ENTER id jobcat
+  /SAVE PRED RESID.

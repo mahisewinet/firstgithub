@@ -1,0 +1,4 @@
+toString
+equalsIgnorCase
+equals
+charAt subString lab4,1 
